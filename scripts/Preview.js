@@ -301,8 +301,6 @@ function ContentPreview() {
             }
 
             console.log("i= " + i + "j= " + j);
-            console.log(startNode);
-            console.log(endNode);
 
             var p = startNode.parentNode;
             var wrapper = document.createElement('div');
@@ -384,25 +382,67 @@ function ContentPreview() {
         break;
 
       case "left":
-        var temp = previewElement.previousElementSibling;
-        while (temp) {
-          if (looksInteresting(temp, previewElement)) {
-            previewElement = temp;
-            break;
-          }
-          temp = temp.previousElementSibling;
+        var previousSibling = null;
+        var tempParent = previewElement;
+        var tempSibling = previewElement.previousElementSibling;
+        while (tempParent) {
+            // reverse at this level
+            while (tempSibling) {
+              if (looksInteresting(tempSibling, tempParent)) {
+                previousSibling = tempSibling;
+                break;
+              }
+              tempSibling = tempSibling.previousElementSibling;
+            }
+
+            if (previousSibling) {
+                previewElement = previousSibling;
+                break;
+            }
+
+            // no sibling exist at this level, go up.
+            tempParent = tempParent.parentNode;
+
+            // we move back the end
+            if (tempParent) {
+                tempSibling = tempParent;
+                if (tempParent.lastElementChild) {
+                    tempSibling = tempParent.lastElementChild;
+                }
+            }
         }
+
         break;
 
       case "right":
-        var temp = previewElement.nextElementSibling;
-        while (temp) {
-          if (looksInteresting(temp, previewElement)) {
-            previewElement = temp;
-            break;
-          }
-          temp = temp.nextElementSibling;
+        var nextSibling = null;
+        var tempParent = previewElement;
+        var tempSibling = previewElement.nextElementSibling;
+        while (tempParent) {
+            while (tempSibling) {
+              if (looksInteresting(tempSibling, tempParent)) {
+                nextSibling = tempSibling;
+                break;
+              }
+              tempSibling = tempSibling.nextElementSibling;
+            }
+
+            if (nextSibling) {
+                previewElement = nextSibling;
+                break;
+            }
+
+            tempParent = tempParent.parentNode;
+
+            // we move back to the head.
+            if (tempParent) {
+                tempSibling = tempParent;
+                if (tempParent.firstElementChild) {
+                    tempSibling = tempParent.firstElementChild;
+                }
+            }
         }
+
         break;
 
       case "enter":
